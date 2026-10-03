@@ -8,7 +8,7 @@ const HospitalRequestBlood = () => {
   const [form, setForm] = useState({
     labId: "",
     bloodType: "",
-    units: ""
+    units: "",
   });
   const [loading, setLoading] = useState(false);
   const [labsLoading, setLabsLoading] = useState(true);
@@ -20,7 +20,11 @@ const HospitalRequestBlood = () => {
       try {
         setLabsLoading(true);
         const token = localStorage.getItem("token");
-        const res = await axios.get("/api/facility/labs", {
+        const apiUrl = `${
+          import.meta.env.VITE_API_URL || ""
+        }/api/facility/labs`;
+
+        const res = await axios.get(apiUrl, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setLabs(res.data.labs || []);
@@ -42,11 +46,15 @@ const HospitalRequestBlood = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await axios.post(
-        "/api/hospital/blood/request",
-        form,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const apiUrl = `${
+        import.meta.env.VITE_API_URL || ""
+      }/api/hospital/blood/request`;
+
+      const response = await axios.post(apiUrl, form, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       toast.success("Blood request sent successfully!");
       setForm({ labId: "", bloodType: "", units: "" });
@@ -69,7 +77,9 @@ const HospitalRequestBlood = () => {
             </div>
             <h1 className="text-3xl font-bold text-gray-800">Request Blood</h1>
           </div>
-          <p className="text-gray-600">Request blood units from approved blood labs</p>
+          <p className="text-gray-600">
+            Request blood units from approved blood labs
+          </p>
         </div>
 
         {/* Request Form */}
@@ -98,13 +108,16 @@ const HospitalRequestBlood = () => {
                   {labs.map((lab) => (
                     <option key={lab._id} value={lab._id}>
                       {lab.name} — {lab.address?.city}
-                      {lab.operatingHours && ` (${lab.operatingHours.open} - ${lab.operatingHours.close})`}
+                      {lab.operatingHours &&
+                        ` (${lab.operatingHours.open} - ${lab.operatingHours.close})`}
                     </option>
                   ))}
                 </select>
               )}
               {labs.length === 0 && !labsLoading && (
-                <p className="text-sm text-red-600 mt-1">No approved blood labs available</p>
+                <p className="text-sm text-red-600 mt-1">
+                  No approved blood labs available
+                </p>
               )}
             </div>
 
@@ -116,7 +129,9 @@ const HospitalRequestBlood = () => {
               </label>
               <select
                 value={form.bloodType}
-                onChange={(e) => setForm({ ...form, bloodType: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, bloodType: e.target.value })
+                }
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-red-500 focus:border-purple-500 transition-colors"
                 required
               >
@@ -144,7 +159,9 @@ const HospitalRequestBlood = () => {
                 placeholder="Enter number of units"
                 required
               />
-              <p className="text-sm text-gray-500 mt-1">Minimum 1 unit, maximum 100 units</p>
+              <p className="text-sm text-gray-500 mt-1">
+                Minimum 1 unit, maximum 100 units
+              </p>
             </div>
 
             {/* Submit Button */}
@@ -177,12 +194,16 @@ const HospitalRequestBlood = () => {
             </h3>
             <div className="grid gap-3">
               {labs.map((lab) => (
-                <div key={lab._id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                <div
+                  key={lab._id}
+                  className="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
+                >
                   <div>
                     <div className="font-medium text-gray-800">{lab.name}</div>
                     <div className="text-sm text-gray-600 flex items-center gap-1">
                       <MapPin size={12} />
-                      {lab.address?.street}, {lab.address?.city}, {lab.address?.state} - {lab.address?.pincode}
+                      {lab.address?.street}, {lab.address?.city},{" "}
+                      {lab.address?.state} - {lab.address?.pincode}
                     </div>
                   </div>
                   <div className="text-right">
@@ -206,3 +227,4 @@ const HospitalRequestBlood = () => {
 };
 
 export default HospitalRequestBlood;
+

@@ -19,7 +19,9 @@ import {
 } from "lucide-react";
 
 // NOTE: Ensure this URL matches your running backend API endpoint
-const API_BASE_URL = "/api";
+const API_BASE_URL = `${
+  import.meta.env.VITE_API_URL || ""
+}/api`;
 
 const STATUS_OPTIONS = [
   { value: "all", label: "All Camps" },
@@ -30,40 +32,41 @@ const STATUS_OPTIONS = [
 ];
 
 const CampCard = ({ camp }) => {
-  const isCompleted = camp.status === 'Completed';
-  const isCancelled = camp.status === 'Cancelled';
-  const isUpcoming = camp.status === 'Upcoming';
+  const isCompleted = camp.status === "Completed";
+  const isCancelled = camp.status === "Cancelled";
+  const isUpcoming = camp.status === "Upcoming";
   // const isOngoing = camp.status === 'Ongoing';
 
   const statusColor = isCancelled
     ? "bg-red-100 text-red-600 border-red-200"
     : isCompleted
-    ? "bg-gray-100 text-gray-600 border-gray-200"
-    : "bg-green-100 text-green-600 border-green-200";
+      ? "bg-gray-100 text-gray-600 border-gray-200"
+      : "bg-green-100 text-green-600 border-green-200";
 
   // --- Using schema fields: date and time {start, end} ---
   const campDate = new Date(camp.date);
-  const dateStr = campDate.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
+  const dateStr = campDate.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
-  
-  const timeStr = `${camp.time?.start || 'N/A'} - ${camp.time?.end || 'N/A'}`;
-  
+
+  const timeStr = `${camp.time?.start || "N/A"} - ${camp.time?.end || "N/A"}`;
+
   // --- Using schema fields: expectedDonors and actualDonors ---
   const expectedDonors = camp.expectedDonors || 0;
-  const actualDonors = camp.actualDonors || 0; 
-  
+  const actualDonors = camp.actualDonors || 0;
+
   const slotsAvailable = expectedDonors > 0 ? expectedDonors - actualDonors : 0;
-  const isFull = slotsAvailable <= 0 && expectedDonors > 0 && !isCompleted && !isCancelled;
+  const isFull =
+    slotsAvailable <= 0 && expectedDonors > 0 && !isCompleted && !isCancelled;
 
   // 1. Full Address including Pincode
   const { venue, city, state, pincode } = camp.location || {};
   const locationStr = `${venue}, ${city}, ${state} - ${pincode}`;
-  
+
   // Assuming the populated hospital object has a 'name' field from the Facility model
-  const hospitalName = camp.hospital?.name || 'Associated Facility Missing';
+  const hospitalName = camp.hospital?.name || "Associated Facility Missing";
 
   // Donor Capacity Logic
   const renderDonorCapacity = () => {
@@ -73,8 +76,8 @@ const CampCard = ({ camp }) => {
           {expectedDonors} Expected Donors (Capacity)
         </span>
       );
-    } 
-    
+    }
+
     // For Ongoing, Completed, or Cancelled (where data might be relevant)
     return (
       <span className="font-medium text-gray-600">
@@ -84,21 +87,27 @@ const CampCard = ({ camp }) => {
   };
 
   return (
-    <div className={`bg-white rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl p-6 border-2 overflow-hidden ${
-      isCancelled ? 'border-red-200 opacity-70' : 'border-red-100'
-    }`}>
+    <div
+      className={`bg-white rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl p-6 border-2 overflow-hidden ${
+        isCancelled ? "border-red-200 opacity-70" : "border-red-100"
+      }`}
+    >
       {/* Header with status badge */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
-        <h4 className={`text-xl font-bold leading-tight ${
-          isCancelled ? 'text-gray-500' : 'text-gray-800'
-        }`}>
+        <h4
+          className={`text-xl font-bold leading-tight ${
+            isCancelled ? "text-gray-500" : "text-gray-800"
+          }`}
+        >
           {camp.title}
         </h4>
-        <span className={`px-3 py-1.5 text-xs font-semibold rounded-full border ${statusColor} self-start sm:self-auto`}>
+        <span
+          className={`px-3 py-1.5 text-xs font-semibold rounded-full border ${statusColor} self-start sm:self-auto`}
+        >
           {camp.status}
         </span>
       </div>
-      
+
       {/* Hospital/Facility Name */}
       <div className="flex items-center gap-3 text-sm text-gray-700 mb-3 font-semibold">
         <Building2 className="w-4 h-4 text-red-500 flex-shrink-0" />
@@ -130,26 +139,35 @@ const CampCard = ({ camp }) => {
           <span className="font-semibold text-gray-700">Capacity:</span>
           {renderDonorCapacity()}
         </div>
-        
+
         {/* Remaining Need - Only visible if not Completed or Cancelled */}
         {!isCompleted && !isCancelled && (
-            <div className="flex items-center gap-2 text-sm">
-                <ListPlus className="w-4 h-4 text-red-500" />
-                <span className="font-semibold text-gray-700">Remaining Need:</span>
-                <span className={`font-bold ${
-                    isFull ? 'text-red-600' : 'text-green-600'
-                }`}>
-                    {isFull ? 'Full (Capacity Reached)' : `${slotsAvailable} slots remaining`}
-                </span>
-            </div>
+          <div className="flex items-center gap-2 text-sm">
+            <ListPlus className="w-4 h-4 text-red-500" />
+            <span className="font-semibold text-gray-700">Remaining Need:</span>
+            <span
+              className={`font-bold ${
+                isFull ? "text-red-600" : "text-green-600"
+              }`}
+            >
+              {isFull
+                ? "Full (Capacity Reached)"
+                : `${slotsAvailable} slots remaining`}
+            </span>
+          </div>
         )}
-        
+
         {/* Description Section (Always visible) */}
         <div className="pt-4 border-t border-gray-100 w-full mt-3">
           {/* Description */}
           <div>
-            <h5 className="font-bold text-gray-800 mb-1 flex items-center gap-2"><Droplet className="w-4 h-4" /> Description</h5>
-            <p className="text-gray-600 text-sm italic whitespace-pre-wrap">{camp.description || 'No detailed description provided for this camp.'}</p>
+            <h5 className="font-bold text-gray-800 mb-1 flex items-center gap-2">
+              <Droplet className="w-4 h-4" /> Description
+            </h5>
+            <p className="text-gray-600 text-sm italic whitespace-pre-wrap">
+              {camp.description ||
+                "No detailed description provided for this camp."}
+            </p>
           </div>
         </div>
       </div>
@@ -163,7 +181,7 @@ export const DonorCampsList = () => {
   const [camps, setCamps] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 9,
@@ -174,19 +192,19 @@ export const DonorCampsList = () => {
 
   const fetchCamps = useCallback(async () => {
     // NOTE: Using localStorage token as per original code. This should be replaced with a proper auth flow (e.g., Firebase auth) in a production environment.
-    const token = localStorage.getItem("token"); 
+    const token = localStorage.getItem("token");
     if (!token) {
       setError("Authentication required. Please log in to view camps.");
       toast.error("Authentication token missing.");
       setCamps([]);
       return;
     }
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
-      const statusParam = filter === 'all' ? '' : filter;
+      const statusParam = filter === "all" ? "" : filter;
       // NOTE: In your backend, ensure the API handler is using Mongoose .populate('hospital', 'name')
       // to include the facility name in the response data.
       const params = new URLSearchParams({
@@ -196,7 +214,7 @@ export const DonorCampsList = () => {
         // Added search term param, assuming backend supports 'q' for search
         ...(searchTerm && { q: searchTerm }),
       }).toString();
-      
+
       const apiUrl = `${API_BASE_URL}/donor/camps?${params}`;
       console.log("Fetching camps from URL:", apiUrl);
 
@@ -209,33 +227,38 @@ export const DonorCampsList = () => {
       const { data: responseData } = response.data;
 
       console.log("✅ Camps fetched successfully:", responseData);
-      
+
       if (responseData && responseData.camps) {
         setCamps(responseData.camps);
         // Assuming pagination data is available in response.data.pagination
-        setPagination(prev => ({ 
-          ...prev, 
+        setPagination((prev) => ({
+          ...prev,
           total: responseData.pagination?.total || responseData.camps.length,
           totalPages: responseData.pagination?.totalPages || 1,
-          currentPage: responseData.pagination?.currentPage || 1
+          currentPage: responseData.pagination?.currentPage || 1,
         }));
       } else {
         console.error("API response missing expected data:", response.data);
         throw new Error("Invalid response structure received from server.");
       }
-      
     } catch (err) {
       console.error("❌ Fetch Camps Error:", err);
-      let message = err.response?.data?.message || err.message || "Failed to fetch camps.";
-      
+      let message =
+        err.response?.data?.message || err.message || "Failed to fetch camps.";
+
       if (err.response?.status === 401 || err.response?.status === 403) {
-          message = "Authentication failed or unauthorized. Please log in again.";
+        message = "Authentication failed or unauthorized. Please log in again.";
       }
-      
+
       toast.error(message);
       setError(message);
       setCamps([]);
-      setPagination(prev => ({ ...prev, total: 0, totalPages: 1, currentPage: 1 }));
+      setPagination((prev) => ({
+        ...prev,
+        total: 0,
+        totalPages: 1,
+        currentPage: 1,
+      }));
     } finally {
       setLoading(false);
     }
@@ -249,26 +272,30 @@ export const DonorCampsList = () => {
   // We use the full 'camps' list here which should be the filtered result from the API
   const displayedCamps = camps;
 
-
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
-    setPagination(prev => ({ ...prev, page: 1 }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= pagination.totalPages) {
-      setPagination(prev => ({ ...prev, page: newPage }));
+      setPagination((prev) => ({ ...prev, page: newPage }));
     }
   };
 
-  const totalPages = useMemo(() => pagination.totalPages, [pagination.totalPages]);
-  const currentPage = useMemo(() => pagination.currentPage, [pagination.currentPage]);
+  const totalPages = useMemo(
+    () => pagination.totalPages,
+    [pagination.totalPages],
+  );
+  const currentPage = useMemo(
+    () => pagination.currentPage,
+    [pagination.currentPage],
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-white p-4 sm:p-6 font-sans">
       <Toaster />
       <div className="max-w-7xl mx-auto">
-        
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg border border-red-100 p-6 mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -285,7 +312,7 @@ export const DonorCampsList = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Controls and Filtering */}
         <div className="bg-white rounded-2xl shadow-md border border-red-100 p-4 sm:p-6 mb-6">
           <div className="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center">
@@ -312,7 +339,7 @@ export const DonorCampsList = () => {
                   className="flex-1 px-3 py-2.5 border border-gray-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                   disabled={loading}
                 >
-                  {STATUS_OPTIONS.map(option => (
+                  {STATUS_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -332,7 +359,7 @@ export const DonorCampsList = () => {
               ) : (
                 <RefreshCw className="w-4 h-4" />
               )}
-              {loading ? 'Refreshing...' : 'Refresh'}
+              {loading ? "Refreshing..." : "Refresh"}
             </button>
           </div>
         </div>
@@ -343,7 +370,10 @@ export const DonorCampsList = () => {
             <p className="text-sm text-gray-600">
               Showing {displayedCamps.length} camps
               {searchTerm && (
-                <span> matching "<span className="font-semibold">{searchTerm}</span>"</span>
+                <span>
+                  {" "}
+                  matching "<span className="font-semibold">{searchTerm}</span>"
+                </span>
               )}
               . Total found: {pagination.total}.
             </p>
@@ -355,7 +385,9 @@ export const DonorCampsList = () => {
           <div className="text-center p-12 bg-white rounded-2xl shadow-lg border border-red-100">
             <Loader2 className="w-8 h-8 text-red-500 mx-auto animate-spin mb-4" />
             <p className="text-gray-600 font-medium">Loading camps...</p>
-            <p className="text-sm text-gray-500 mt-1">Finding the best donation opportunities for you</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Finding the best donation opportunities for you
+            </p>
           </div>
         )}
 
@@ -365,8 +397,12 @@ export const DonorCampsList = () => {
             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Droplet className="w-6 h-6 text-red-500" />
             </div>
-            <p className="text-red-700 font-semibold mb-2">Unable to Load Camps</p>
-            <p className="text-sm text-red-600 mb-6 max-w-md mx-auto">{error}</p>
+            <p className="text-red-700 font-semibold mb-2">
+              Unable to Load Camps
+            </p>
+            <p className="text-sm text-red-600 mb-6 max-w-md mx-auto">
+              {error}
+            </p>
             <button
               onClick={() => fetchCamps()}
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl transition-colors font-medium"
@@ -395,20 +431,20 @@ export const DonorCampsList = () => {
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                
+
                 <span className="text-gray-700 text-sm font-medium min-w-[100px] text-center">
                   Page {currentPage} of {totalPages}
                 </span>
-                
+
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages || loading}
                   className="p-2.5 border border-red-300 rounded-xl text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  <ChevronRight className="w-5 h-5" /> 
+                  <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
-              
+
               <span className="text-sm text-gray-500 text-center sm:text-left">
                 {pagination.total} Total Camps • {pagination.limit} per page
               </span>
@@ -423,20 +459,19 @@ export const DonorCampsList = () => {
               <Droplet className="w-8 h-8 text-red-500" />
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              {searchTerm ? 'No Matching Camps Found' : 'No Camps Available'}
+              {searchTerm ? "No Matching Camps Found" : "No Camps Available"}
             </h3>
             <p className="text-gray-500 max-w-md mx-auto">
-              {searchTerm 
+              {searchTerm
                 ? `No camps found matching "${searchTerm}" with the current filter.`
-                : "There are no camps matching the current filter. Try adjusting your filter."
-              }
+                : "There are no camps matching the current filter. Try adjusting your filter."}
             </p>
-            {(searchTerm || filter !== 'all') && (
+            {(searchTerm || filter !== "all") && (
               <button
                 onClick={() => {
-                  setSearchTerm('');
-                  setFilter('all');
-                  setPagination(prev => ({ ...prev, page: 1 }));
+                  setSearchTerm("");
+                  setFilter("all");
+                  setPagination((prev) => ({ ...prev, page: 1 }));
                 }}
                 className="mt-4 bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl transition-colors font-medium"
               >
@@ -451,3 +486,4 @@ export const DonorCampsList = () => {
 };
 
 export default DonorCampsList;
+

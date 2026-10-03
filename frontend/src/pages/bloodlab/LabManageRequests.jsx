@@ -11,8 +11,14 @@ const LabManageRequests = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const res = await axios.get("/api/blood-lab/blood/requests", {
-        headers: { Authorization: `Bearer ${token}` },
+      const apiUrl = `${
+        import.meta.env.VITE_API_URL || ""
+      }/api/blood-lab/blood/requests`;
+
+      const res = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       setRequests(res.data.requests || []);
     } catch (err) {
@@ -31,10 +37,18 @@ const LabManageRequests = () => {
     try {
       const token = localStorage.getItem("token");
 
+      const apiUrl = `${
+        import.meta.env.VITE_API_URL || ""
+      }/api/blood-lab/blood/requests/${id}`;
+
       await axios.put(
-        `/api/blood-lab/blood/requests/${id}`,
+        apiUrl,
         { action },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
 
       toast.success(`Request ${action}ed successfully`);
@@ -49,14 +63,16 @@ const LabManageRequests = () => {
     const statusConfig = {
       pending: { color: "bg-yellow-100 text-yellow-800", icon: Clock },
       accepted: { color: "bg-green-100 text-green-800", icon: CheckCircle },
-      rejected: { color: "bg-red-100 text-red-800", icon: XCircle }
+      rejected: { color: "bg-red-100 text-red-800", icon: XCircle },
     };
 
     const config = statusConfig[status] || statusConfig.pending;
     const IconComponent = config.icon;
 
     return (
-      <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${config.color}`}>
+      <span
+        className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${config.color}`}
+      >
         <IconComponent size={14} />
         {status}
       </span>
@@ -93,24 +109,26 @@ const LabManageRequests = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white p-4 rounded-xl shadow-lg border-l-4 border-l-red-400">
-            <div className="text-2xl font-bold text-gray-800">{requests.length}</div>
+            <div className="text-2xl font-bold text-gray-800">
+              {requests.length}
+            </div>
             <div className="text-sm text-gray-600">Total Requests</div>
           </div>
           <div className="bg-white p-4 rounded-xl shadow-lg border-l-4 border-l-yellow-400">
             <div className="text-2xl font-bold text-yellow-600">
-              {requests.filter(r => r.status === "pending").length}
+              {requests.filter((r) => r.status === "pending").length}
             </div>
             <div className="text-sm text-gray-600">Pending</div>
           </div>
           <div className="bg-white p-4 rounded-xl shadow-lg border-l-4 border-l-green-400">
             <div className="text-2xl font-bold text-green-600">
-              {requests.filter(r => r.status === "accepted").length}
+              {requests.filter((r) => r.status === "accepted").length}
             </div>
             <div className="text-sm text-gray-600">Accepted</div>
           </div>
           <div className="bg-white p-4 rounded-xl shadow-lg border-l-4 border-l-red-400">
             <div className="text-2xl font-bold text-red-600">
-              {requests.filter(r => r.status === "rejected").length}
+              {requests.filter((r) => r.status === "rejected").length}
             </div>
             <div className="text-sm text-gray-600">Rejected</div>
           </div>
@@ -121,25 +139,44 @@ const LabManageRequests = () => {
           {requests.length === 0 ? (
             <div className="text-center py-12">
               <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-800 mb-2">No blood requests</h3>
-              <p className="text-gray-600">When hospitals request blood, they will appear here.</p>
+              <h3 className="text-lg font-medium text-gray-800 mb-2">
+                No blood requests
+              </h3>
+              <p className="text-gray-600">
+                When hospitals request blood, they will appear here.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="bg-gray-50 border-b">
-                    <th className="p-4 text-left font-semibold text-gray-700">Hospital</th>
-                    <th className="p-4 text-left font-semibold text-gray-700">Blood Type</th>
-                    <th className="p-4 text-left font-semibold text-gray-700">Units</th>
-                    <th className="p-4 text-left font-semibold text-gray-700">Status</th>
-                    <th className="p-4 text-left font-semibold text-gray-700">Date</th>
-                    <th className="p-4 text-left font-semibold text-gray-700">Actions</th>
+                    <th className="p-4 text-left font-semibold text-gray-700">
+                      Hospital
+                    </th>
+                    <th className="p-4 text-left font-semibold text-gray-700">
+                      Blood Type
+                    </th>
+                    <th className="p-4 text-left font-semibold text-gray-700">
+                      Units
+                    </th>
+                    <th className="p-4 text-left font-semibold text-gray-700">
+                      Status
+                    </th>
+                    <th className="p-4 text-left font-semibold text-gray-700">
+                      Date
+                    </th>
+                    <th className="p-4 text-left font-semibold text-gray-700">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {requests.map((req) => (
-                    <tr key={req._id} className="border-b hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={req._id}
+                      className="border-b hover:bg-gray-50 transition-colors"
+                    >
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
@@ -148,7 +185,9 @@ const LabManageRequests = () => {
                             </span>
                           </div>
                           <div>
-                            <div className="font-medium text-gray-800">{req.hospitalId?.name || "Unknown Hospital"}</div>
+                            <div className="font-medium text-gray-800">
+                              {req.hospitalId?.name || "Unknown Hospital"}
+                            </div>
                             <div className="flex items-center gap-1 text-sm text-gray-500">
                               <MapPin size={12} />
                               {req.hospitalId?.address?.city || "Unknown City"}
@@ -162,12 +201,14 @@ const LabManageRequests = () => {
                         </span>
                       </td>
                       <td className="p-4">
-                        <span className="text-lg font-semibold text-gray-800">{req.units}</span>
-                        <span className="text-sm text-gray-500 ml-1">units</span>
+                        <span className="text-lg font-semibold text-gray-800">
+                          {req.units}
+                        </span>
+                        <span className="text-sm text-gray-500 ml-1">
+                          units
+                        </span>
                       </td>
-                      <td className="p-4">
-                        {getStatusBadge(req.status)}
-                      </td>
+                      <td className="p-4">{getStatusBadge(req.status)}</td>
                       <td className="p-4 text-sm text-gray-600">
                         {new Date(req.createdAt).toLocaleDateString()}
                         <br />
@@ -196,7 +237,8 @@ const LabManageRequests = () => {
                         )}
                         {req.status !== "pending" && (
                           <span className="text-gray-500 text-sm">
-                            Processed on {new Date(req.processedAt).toLocaleDateString()}
+                            Processed on{" "}
+                            {new Date(req.processedAt).toLocaleDateString()}
                           </span>
                         )}
                       </td>
@@ -213,3 +255,4 @@ const LabManageRequests = () => {
 };
 
 export default LabManageRequests;
+

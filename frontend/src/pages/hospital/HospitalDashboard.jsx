@@ -62,13 +62,25 @@ const HospitalDashboard = () => {
         }
 
         // Fetch blood stock
-        const stockRes = await axios.get("/api/hospital/blood/stock", {
-          headers: { Authorization: `Bearer ${token}` },
+        const stockApiUrl = `${
+          import.meta.env.VITE_API_URL || ""
+        }/api/hospital/blood/stock`;
+
+        const stockRes = await axios.get(stockApiUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         // Fetch blood requests
-        const requestsRes = await axios.get("/api/hospital/blood/requests", {
-          headers: { Authorization: `Bearer ${token}` },
+        const requestsApiUrl = `${
+          import.meta.env.VITE_API_URL || ""
+        }/api/hospital/blood/requests`;
+
+        const requestsRes = await axios.get(requestsApiUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const stockData = stockRes.data.data || [];
@@ -390,7 +402,7 @@ const HospitalDashboard = () => {
                 </p>
                 <button
                   onClick={() =>
-                    (window.location.href = "/hospital/request-blood")
+                    (window.location.href = "/hospital/request-blood-create")
                   }
                   className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
                 >
@@ -579,3 +591,4 @@ const HospitalDashboard = () => {
 };
 
 export default HospitalDashboard;
+

@@ -8,6 +8,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import facilityRoutes from "./routes/facilityRoutes.js";
 import { swaggerUi, swaggerDocs } from "./openapi/index.js"
 
+
 dotenv.config();
 const app = express();
 

@@ -6,6 +6,7 @@ import {
   rejectFacility,
   getDashboardStats,
   getAllDonors,
+  getBloodPrediction,
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -15,6 +16,7 @@ router.put("/facility/approve/:id",protect,  approveFacility);
 router.put("/facility/reject/:id", protect, rejectFacility);
 router.get("/dashboard", protect, getDashboardStats);
 router.get("/donors", getAllDonors);
+router.get("/blood-prediction", protect, getBloodPrediction);
 
 
 export default router;

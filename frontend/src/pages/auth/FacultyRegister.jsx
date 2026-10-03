@@ -303,7 +303,9 @@ export default function FacilityRegisterForm() {
     };
 
     // **YOUR TARGET URL**
-    const API_URL = `${import.meta.env.VITE_API_URL || ""}/api/auth/register`;
+    const API_URL = `${
+      import.meta.env.VITE_API_URL || ""
+    }/api/auth/register`;
 
     console.log("Submitting Data to Backend:", submissionPayload); // Use the new payload
 
@@ -884,3 +886,4 @@ export default function FacilityRegisterForm() {
     </div>
   );
 }
+

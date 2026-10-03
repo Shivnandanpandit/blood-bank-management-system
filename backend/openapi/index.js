@@ -1,5 +1,7 @@
 import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import dns from "dns";
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 
 // swagger config
 const swaggerOptions = {

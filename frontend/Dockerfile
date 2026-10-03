@@ -1,4 +1,5 @@
-FROM node:20-alpine as builder
+# Stage 1: Build React application
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -10,19 +11,17 @@ COPY . .
 
 RUN npm run build
 
-# --------
 
+# Stage 2: Serve using Nginx
 FROM nginx:alpine
 
 RUN rm -rf /usr/share/nginx/html/*
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-EXPOSE 80
-
+# Use our custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-CMD [ "nginx", "-g", "daemon off;" ]
+EXPOSE 80
 
-
-
+CMD ["nginx", "-g", "daemon off;"]

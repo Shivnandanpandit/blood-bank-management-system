@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Admin from "./models/adminModel.js";
 
+
 dotenv.config();
 
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -11,13 +12,13 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 const seedAdmin = async () => {
   try {
     // Remove existing admin with same email
-    await Admin.deleteMany({ email: "suraj@admin.com" });
+    await Admin.deleteMany({ email: "shivnandan@admin.com" });
 
     // Create new admin
     const admin = new Admin({
-      name: "Suraj Savle",
-      email: "suraj@admin.com",
-      password: "bbms@admin", // will be hashed automatically
+      name: "Shivnandan Pandit",
+      email: "shivnandan@admin.com",
+      password: "Shivnandan@2005", // will be hashed automatically
       role: "admin",
     });
 

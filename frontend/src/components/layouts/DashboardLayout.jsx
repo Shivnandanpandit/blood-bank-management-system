@@ -201,10 +201,9 @@ const DashboardLayout = ({ userRole = "donor" }) => {
 
       while (attempt < maxRetries) {
         try {
-
           const apiUrl = `${import.meta.env.VITE_API_URL || ""}/api/auth/profile`;
+
           const res = await fetch(apiUrl, {
-          const res = await fetch("/api/auth/profile", {
             headers: { Authorization: `Bearer ${token}` },
           });
 

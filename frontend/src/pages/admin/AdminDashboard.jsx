@@ -22,6 +22,9 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const [prediction, setPrediction] = useState(null);
+  const [predictionLoading, setPredictionLoading] = useState(true);
+
   const fetchStats = async (showToast = false) => {
     try {
       if (showToast) setRefreshing(true);
@@ -33,9 +36,13 @@ const AdminDashboard = () => {
       }
 
       console.log("🔄 Fetching admin dashboard stats...");
-      
-      const res = await fetch("/api/admin/dashboard", {
-        headers: { 
+
+      const apiUrl = `${
+        import.meta.env.VITE_API_URL || ""
+      }/api/admin/dashboard`;
+
+      const res = await fetch(apiUrl, {
+        headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
@@ -64,9 +71,39 @@ const AdminDashboard = () => {
       setRefreshing(false);
     }
   };
+  const fetchPrediction = async () => {
+    try {
+      setPredictionLoading(true);
+
+      const token = localStorage.getItem("token");
+
+      const apiUrl = `${
+        import.meta.env.VITE_API_URL || ""
+      }/api/admin/blood-prediction`;
+
+      const res = await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to fetch blood prediction");
+      }
+
+      setPrediction(data);
+    } catch (error) {
+      console.error("Blood Prediction Error:", error);
+    } finally {
+      setPredictionLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchStats();
+    fetchPrediction();
   }, []);
 
   if (loading) {
@@ -266,7 +303,10 @@ const AdminDashboard = () => {
             </div>
 
             <button
-              onClick={() => fetchStats(true)}
+              onClick={() => {
+                fetchStats(true);
+                fetchPrediction();
+              }}
               disabled={refreshing}
               className="flex items-center gap-2 px-4 py-2 bg-white border border-red-200 rounded-lg text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
             >
@@ -394,6 +434,134 @@ const AdminDashboard = () => {
             )}
           </div>
         </div>
+        {/* AI Blood Intelligence */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Activity className="w-6 h-6 text-purple-600" />
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    AI Blood Intelligence
+                  </h2>
+
+                  <p className="text-sm text-gray-500">
+                    Blood demand & shortage prediction
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <span className="text-xs text-gray-500">
+              Based on recent blood requests
+            </span>
+          </div>
+
+          {predictionLoading ? (
+            <div className="flex items-center justify-center py-10">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            </div>
+          ) : prediction?.predictions?.length > 0 ? (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-3 text-sm font-medium text-gray-500">
+                        Blood Group
+                      </th>
+
+                      <th className="text-center py-3 px-3 text-sm font-medium text-gray-500">
+                        Current Stock
+                      </th>
+
+                      <th className="text-center py-3 px-3 text-sm font-medium text-gray-500">
+                        Predicted Demand
+                      </th>
+
+                      <th className="text-center py-3 px-3 text-sm font-medium text-gray-500">
+                        Shortage
+                      </th>
+
+                      <th className="text-center py-3 px-3 text-sm font-medium text-gray-500">
+                        Risk
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {prediction.predictions.map((item) => (
+                      <tr
+                        key={item.bloodGroup}
+                        className="border-b border-gray-100"
+                      >
+                        <td className="py-4 px-3 font-semibold text-gray-900">
+                          {item.bloodGroup}
+                        </td>
+
+                        <td className="py-4 px-3 text-center">
+                          {item.currentStock}
+                        </td>
+
+                        <td className="py-4 px-3 text-center">
+                          {item.predictedDemand ?? "—"}
+                        </td>
+
+                        <td className="py-4 px-3 text-center">
+                          {item.shortage ?? "—"}
+                        </td>
+
+                        <td className="py-4 px-3 text-center">
+                          <span
+                            className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${
+                              item.risk === "CRITICAL"
+                                ? "bg-red-100 text-red-700"
+                                : item.risk === "HIGH"
+                                  ? "bg-orange-100 text-orange-700"
+                                  : item.risk === "MEDIUM"
+                                    ? "bg-yellow-100 text-yellow-700"
+                                    : item.risk === "INSUFFICIENT_DATA"
+                                      ? "bg-gray-100 text-gray-600"
+                                      : "bg-green-100 text-green-700"
+                            }`}
+                          >
+                            {item.risk === "INSUFFICIENT_DATA"
+                              ? "INSUFFICIENT DATA"
+                              : item.risk}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* AI Insight */}
+              <div className="mt-6 p-4 rounded-lg bg-purple-50 border border-purple-100">
+                <div className="flex gap-3">
+                  <Activity className="w-5 h-5 text-purple-600 mt-0.5" />
+
+                  <div>
+                    <h3 className="font-semibold text-purple-900">
+                      AI Insight
+                    </h3>
+
+                    <p className="text-sm text-purple-800 mt-1">
+                      {prediction.insight}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-10 text-gray-500">
+              No prediction data available.
+            </div>
+          )}
+        </div>
 
         {/* Quick Actions */}
         <div className="mb-8">
@@ -469,3 +637,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
